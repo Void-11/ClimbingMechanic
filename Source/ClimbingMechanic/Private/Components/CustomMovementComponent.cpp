@@ -58,6 +58,35 @@ FHitResult UCustomMovementComponent::DoLineTraceSingleByObject(const FVector& St
 
 #pragma region ClimbCore
 
+void UCustomMovementComponent::ToggleClimbing(bool bEnableClimb)
+{
+	if (bEnableClimb)
+	{
+		if (CanStartClimbing)
+		{
+
+		}
+	}
+
+	else 
+	{
+
+	}
+}
+
+bool UCustomMovementComponent::CanStartClimbing()
+{
+	return false;
+}
+
+bool UCustomMovementComponent::IsClimbing() const
+{
+	MovementMode == MOVE_Custom && CustomMovementMode == 
+	return false;
+}
+
+
+
 void UCustomMovementComponent::TraceClimbableSurfaces()
 {
 	const FVector StartOffset = UpdatedComponent->GetForwardVector() * 30.f;

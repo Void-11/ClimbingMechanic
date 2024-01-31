@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CustomMovementComponent.generated.h"
 
+UENUM(BlueprintType)
 /**
  * 
  */
@@ -31,6 +32,8 @@ private:
 
 	void TraceFromEyeHeight(float TraceDistance, float TraceStartOffset = 0.f);
 
+	bool CanStartClimbing();
+
 #pragma endregion
 
 #pragma region ClimbVariables
@@ -45,4 +48,8 @@ private:
 	float ClimbCapsuleTraceHalfHeight = 72.f;
 	
 #pragma endregion
+
+public:
+	void ToggleClimbing(bool bEnableClimb);
+	bool IsClimbing() const;
 };
