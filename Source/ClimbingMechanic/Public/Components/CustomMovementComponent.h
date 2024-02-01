@@ -46,6 +46,7 @@ private:
 #pragma region ClimbCoreVariables
 
 	TArray<FHitResult> ClimbableSurfacesTracedResults;
+
 #pragma endregion
 
 #pragma region ClimbBPVariables
