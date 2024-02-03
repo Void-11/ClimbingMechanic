@@ -4,6 +4,7 @@
 #include "Components/CustomMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "ClimbingMechanic/ClimbingMechanicCharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "ClimbingMechanic/DebugHelper.h"
 
 void UCustomMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -13,6 +14,26 @@ void UCustomMovementComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 	/*TraceClimbableSurfaces();
 	TraceFromEyeHeight(100.f);*/
 }
+
+void UCustomMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)
+{
+	if (IsClimbing())
+	{
+		bOrientRotationToMovement = false;
+		CharacterOwner->GetCapsuleComponent()->SetCapsuleHalfHeight(48.f);
+	}
+
+	if (PreviousMovementMode == MOVE_Custom && PreviousCustomMode == ECustomMovementMode::MOVE_Climb)
+	{
+		bOrientRotationToMovement = true;
+		CharacterOwner->GetCapsuleComponent()->SetCapsuleHalfHeight(96.f);
+
+		StopMovementImmediately();
+	}
+
+	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
+}
+
 #pragma region ClimbTraces
 
 TArray<FHitResult> UCustomMovementComponent::DoCapsuleTraceMultiByObject(const FVector& Start, const FVector& End, bool bShowDebugShape, bool bDrawPersistantShapes)
@@ -91,6 +112,7 @@ void UCustomMovementComponent::ToggleClimbing(bool bEnableClimb)
 		if (CanStartClimbing())
 		{
 			Debug::Print(TEXT("Can Start Climbing"));
+			StartClimbing(); 
 		}
 		else
 		{
@@ -99,8 +121,8 @@ void UCustomMovementComponent::ToggleClimbing(bool bEnableClimb)
 	}
 
 	else 
-	{
-		//Stop climbing
+	 {
+		StopClimbing();
 	}
 }
 
@@ -111,6 +133,16 @@ bool UCustomMovementComponent::CanStartClimbing()
 	if (!TraceFromEyeHeight(100.f).bBlockingHit) return false;
 
 	return true;
+}
+
+void UCustomMovementComponent::StartClimbing()
+{
+	SetMovementMode(MOVE_Custom, ECustomMovementMode::MOVE_Climb);
+}
+
+void UCustomMovementComponent::StopClimbing()
+{
+	SetMovementMode(MOVE_Falling);
 }
 
 bool UCustomMovementComponent::IsClimbing() const
