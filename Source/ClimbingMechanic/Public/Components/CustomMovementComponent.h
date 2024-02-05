@@ -54,6 +54,8 @@ private:
 
 	void StopClimbing();
 
+	void PhysClimbing(float deltaTime, int32 Iterations);
+
 #pragma endregion
 
 #pragma region ClimbCoreVariables
@@ -72,6 +74,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing", meta = (AllowPrivateAccess = "true"))
 	float ClimbCapsuleTraceHalfHeight = 72.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing", meta = (AllowPrivateAccess = "true"))
+	float MaxBreakClimbDeceleration = 400.f;
 	
 #pragma endregion
 
