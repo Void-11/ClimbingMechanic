@@ -163,7 +163,9 @@ void UCustomMovementComponent::PhysClimbing(float deltaTime, int32 Iterations)
 	}
 
 	/*Process all surfaces info that are cimbable*/
+	TraceClimbableSurfaces();
 
+	ProcessClimbableSurfaceInfo();
 	/*Check if we should stop climbing*/
 	RestorePreAdditiveRootMotionVelocity();
 
@@ -199,6 +201,26 @@ void UCustomMovementComponent::PhysClimbing(float deltaTime, int32 Iterations)
 	//Snap movement to climbable surfaces
 }
 
+void UCustomMovementComponent::ProcessClimbableSurfaceInfo()
+{
+	CurrentClimbableSurfaceLocation = FVector::ZeroVector;
+	CurrentClimbableSurfaceNormal = FVector::ZeroVector;
+
+	if (ClimbableSurfacesTracedResults.IsEmpty()) return;
+
+	for (const FHitResult& TracedHitresult : ClimbableSurfacesTracedResults)
+	{
+		CurrentClimbableSurfaceLocation += TracedHitresult.ImpactPoint;
+		CurrentClimbableSurfaceNormal += TracedHitresult.ImpactNormal;
+	}
+
+	CurrentClimbableSurfaceLocation /= ClimbableSurfacesTracedResults.Num();
+	CurrentClimbableSurfaceNormal = CurrentClimbableSurfaceNormal.GetSafeNormal();
+
+	Debug::Print(TEXT("ClimbablesurfaceLocation: ") + CurrentClimbableSurfaceLocation.ToCompactString(), FColor::Cyan, 1);
+	Debug::Print(TEXT("ClimbablesurfaceNormal: ") + CurrentClimbableSurfaceNormal.ToCompactString(), FColor::Purple, 2);
+}
+
 bool UCustomMovementComponent::IsClimbing() const
 {
 	return MovementMode == MOVE_Custom && CustomMovementMode == ECustomMovementMode::MOVE_Climb;
@@ -212,7 +234,7 @@ bool UCustomMovementComponent::TraceClimbableSurfaces()
 	const FVector Start = UpdatedComponent->GetComponentLocation() + StartOffset;
 	const FVector End = Start + UpdatedComponent->GetForwardVector();
 
-	ClimbableSurfacesTracedResults = DoCapsuleTraceMultiByObject(Start, End, true, true);
+	ClimbableSurfacesTracedResults = DoCapsuleTraceMultiByObject(Start, End, true);
 
 	return !ClimbableSurfacesTracedResults.IsEmpty();
 }
@@ -225,7 +247,7 @@ FHitResult UCustomMovementComponent::TraceFromEyeHeight(float TraceDistance, flo
 	const FVector Start = ComponentLocation + EyeHeightOffset;
 	const FVector End = Start + UpdatedComponent->GetForwardVector() * TraceDistance;
 
-	return DoLineTraceSingleByObject(Start, End, true, true);
+	return DoLineTraceSingleByObject(Start, End);
 	
 }
 
