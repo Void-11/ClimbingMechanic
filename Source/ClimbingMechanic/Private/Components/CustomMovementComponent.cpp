@@ -28,6 +28,10 @@ void UCustomMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovem
 		bOrientRotationToMovement = true;
 		CharacterOwner->GetCapsuleComponent()->SetCapsuleHalfHeight(96.f);
 
+		const FRotator IncorrectRotation = UpdatedComponent->GetComponentRotation();
+		const FRotator CorrectStandRotation = FRotator(0.f, IncorrectRotation.Yaw, 0.f);
+		UpdatedComponent->SetRelativeRotation(CorrectStandRotation);
+
 		StopMovementImmediately();
 	}
 
@@ -187,7 +191,7 @@ void UCustomMovementComponent::PhysClimbing(float deltaTime, int32 Iterations)
 		return;
 	}
 
-	/*Process all surfaces info that are cimbable*/
+	/*Process all surfaces info that are climbable*/
 	TraceClimbableSurfaces();
 
 	ProcessClimbableSurfaceInfo();
@@ -234,10 +238,10 @@ void UCustomMovementComponent::ProcessClimbableSurfaceInfo()
 
 	if (ClimbableSurfacesTracedResults.IsEmpty()) return;
 
-	for (const FHitResult& TracedHitresult : ClimbableSurfacesTracedResults)
+	for (const FHitResult& TracedHitResult : ClimbableSurfacesTracedResults)
 	{
-		CurrentClimbableSurfaceLocation += TracedHitresult.ImpactPoint;
-		CurrentClimbableSurfaceNormal += TracedHitresult.ImpactNormal;
+		CurrentClimbableSurfaceLocation += TracedHitResult.ImpactPoint;
+		CurrentClimbableSurfaceNormal += TracedHitResult.ImpactNormal;
 	}
 
 	CurrentClimbableSurfaceLocation /= ClimbableSurfacesTracedResults.Num();
@@ -266,7 +270,7 @@ void UCustomMovementComponent::SnapMovementToClimbableSurfaces(float DeltaTime)
 
 	const FVector ProjectedCharacterToSurface = (CurrentClimbableSurfaceLocation - ComponentLocation).ProjectOnTo(ComponentForward);
 
-	const FVector SnapVector = -CurrentClimbableSurfaceLocation * ProjectedCharacterToSurface.Length();
+	const FVector SnapVector = -CurrentClimbableSurfaceNormal * ProjectedCharacterToSurface.Length();
 
 	UpdatedComponent->MoveComponent(
 		SnapVector * DeltaTime * MaxClimbSpeed,
