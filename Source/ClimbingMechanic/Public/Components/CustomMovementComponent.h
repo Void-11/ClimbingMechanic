@@ -59,6 +59,8 @@ private:
 
 	void ProcessClimbableSurfaceInfo();
 
+	bool CheckIfStopClimbing();
+
 	FQuat GetClimbRotation(float DeltaTime);
 
 	void SnapMovementToClimbableSurfaces(float DeltaTime);
@@ -99,5 +101,5 @@ private:
 public:
 	void ToggleClimbing(bool bEnableClimb);
 	bool IsClimbing() const;
-	FORCEINLINE FVector GetClimbableSurfaceNormal() const { return CurrentClimbableSurfaceNormal; }
+	FORCEINLINE FVector GetClimbableSurfaceNormal() const { return CurrentClimbableSurfaceNormal; } 
 };
