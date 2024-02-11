@@ -329,4 +329,8 @@ FHitResult UCustomMovementComponent::TraceFromEyeHeight(float TraceDistance, flo
 	
 }
 
+void UCustomMovementComponent::PlayClimbMontage(UAnimMontage* MontageToPlay)
+{
+}
+
 #pragma endregion
