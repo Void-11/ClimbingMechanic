@@ -7,6 +7,13 @@
 #include "Components/CapsuleComponent.h"
 #include "ClimbingMechanic/DebugHelper.h"
 
+void UCustomMovementComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	OwningPlayerAnimInstance = CharacterOwner->GetMesh()->GetAnimInstance();
+}
+
 void UCustomMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -331,6 +338,11 @@ FHitResult UCustomMovementComponent::TraceFromEyeHeight(float TraceDistance, flo
 
 void UCustomMovementComponent::PlayClimbMontage(UAnimMontage* MontageToPlay)
 {
+	if (!MontageToPlay) return;
+	if (!OwningPlayerAnimInstance) return;
+	if (OwningPlayerAnimInstance->IsAnyMontagePlaying()) return;
+
+	OwningPlayerAnimInstance->Montage_Play(MontageToPlay);
 }
 
 #pragma endregion
