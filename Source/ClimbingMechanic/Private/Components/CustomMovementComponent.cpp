@@ -12,6 +12,12 @@ void UCustomMovementComponent::BeginPlay()
 	Super::BeginPlay();
 
 	OwningPlayerAnimInstance = CharacterOwner->GetMesh()->GetAnimInstance();
+
+	if (OwningPlayerAnimInstance)
+	{
+		OwningPlayerAnimInstance->OnMontageEnded.AddDynamic(this, &UCustomMovementComponent::OnClimbMontageEnded);
+		OwningPlayerAnimInstance->OnMontageBlendingOut.AddDynamic(this, &UCustomMovementComponent::OnClimbMontageEnded);
+	}
 }
 
 void UCustomMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -158,7 +164,8 @@ void UCustomMovementComponent::ToggleClimbing(bool bEnableClimb)
 		if (CanStartClimbing())
 		{
 			Debug::Print(TEXT("Can Start Climbing"));
-			StartClimbing(); 
+			//StartClimbing(); 
+			PlayClimbMontage(IdleToClimbMontage);
 		}
 		else
 		{
@@ -345,4 +352,8 @@ void UCustomMovementComponent::PlayClimbMontage(UAnimMontage* MontageToPlay)
 	OwningPlayerAnimInstance->Montage_Play(MontageToPlay);
 }
 
+void UCustomMovementComponent::OnClimbMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	Debug::Print(TEXT("Climb montage ended"));
+}
 #pragma endregion
