@@ -59,3 +59,8 @@ void UCharacterAnimInstance::GetIsClimbing()
 {
 	bIsClimbing = CustomMovementComponent->IsClimbing();
 }
+
+void UCharacterAnimInstance::GetClimbVelocity()
+{
+	ClimbVelocity = CustomMovementComponent->GetUnrotatedClimbVelocity();
+}

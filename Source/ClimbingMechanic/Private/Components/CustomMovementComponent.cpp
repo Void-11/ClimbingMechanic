@@ -5,6 +5,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "ClimbingMechanic/ClimbingMechanicCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "ClimbingMechanic/DebugHelper.h"
 
 void UCustomMovementComponent::BeginPlay()
@@ -360,4 +361,10 @@ void UCustomMovementComponent::OnClimbMontageEnded(UAnimMontage* Montage, bool b
 		StartClimbing();
 	}
 }
+
+FVector UCustomMovementComponent::GetUnrotatedClimbVelocity() const
+{
+	return UKismetMathLibrary::Quat_UnrotateVector(UpdatedComponent->GetComponentQuat(), Velocity);
+}
+
 #pragma endregion
