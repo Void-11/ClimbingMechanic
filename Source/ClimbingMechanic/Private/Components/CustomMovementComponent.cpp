@@ -249,6 +249,15 @@ void UCustomMovementComponent::PhysClimbing(float deltaTime, int32 Iterations)
 
 	//Snap movement to climbable surfaces
 	SnapMovementToClimbableSurfaces(deltaTime);
+
+	if (CheckHasReachedLedge())
+	{
+		Debug::Print(TEXT("Ledge Reached"), FColor::Green, 1);
+	}
+	else
+	{
+		Debug::Print(TEXT("Ledge Not Reached"), FColor::Red, 1);
+	}
 }
 
 void UCustomMovementComponent::ProcessClimbableSurfaceInfo()
@@ -293,7 +302,7 @@ bool UCustomMovementComponent::CheckHasReachedFloor()
 	const FVector Start = UpdatedComponent->GetComponentLocation() + StartOffset;
 	const FVector End = Start + DownVector;
 
-	TArray<FHitResult> PossibleFloorHits = DoCapsuleTraceMultiByObject(Start, End, true);
+	TArray<FHitResult> PossibleFloorHits = DoCapsuleTraceMultiByObject(Start, End);
 
 	if (PossibleFloorHits.IsEmpty()) return false;
 
@@ -341,6 +350,29 @@ void UCustomMovementComponent::SnapMovementToClimbableSurfaces(float DeltaTime)
 		true);
 }
 
+bool UCustomMovementComponent::CheckHasReachedLedge()
+{
+	FHitResult LedgetHitResult = TraceFromEyeHeight(100.f, 50.f);
+
+	if (!LedgetHitResult.bBlockingHit)
+	{
+		const FVector WalkableSurfaceTraceStart = LedgetHitResult.TraceEnd;
+
+		const FVector DownVector = -UpdatedComponent->GetUpVector();
+		const FVector WalkableSurfaceTraceEnd = WalkableSurfaceTraceStart + DownVector * 100.f;
+
+		FHitResult WalkabkeSurfaceHitResult =
+			DoLineTraceSingleByObject(WalkableSurfaceTraceStart, WalkableSurfaceTraceEnd, true);
+
+		if (WalkabkeSurfaceHitResult.bBlockingHit && GetUnrotatedClimbVelocity().Z > 10.f)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool UCustomMovementComponent::IsClimbing() const
 {
 	return MovementMode == MOVE_Custom && CustomMovementMode == ECustomMovementMode::MOVE_Climb;
@@ -367,7 +399,7 @@ FHitResult UCustomMovementComponent::TraceFromEyeHeight(float TraceDistance, flo
 	const FVector Start = ComponentLocation + EyeHeightOffset;
 	const FVector End = Start + UpdatedComponent->GetForwardVector() * TraceDistance;
 
-	return DoLineTraceSingleByObject(Start, End);
+	return DoLineTraceSingleByObject(Start, End, true);
 	
 }
 
