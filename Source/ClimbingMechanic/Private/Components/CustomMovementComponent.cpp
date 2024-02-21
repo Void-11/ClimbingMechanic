@@ -184,11 +184,7 @@ void UCustomMovementComponent::ToggleClimbing(bool bEnableClimb)
 		}
 		else if (CanClimbDownLedge())
 		{
-			Debug::Print(TEXT("Can climb down"), FColor::Cyan, 1);
-		}
-		else
-		{
-			Debug::Print(TEXT("Can Not Start Climbing"));
+			PlayClimbMontage(ClimbDownLedgeMontage);
 		}
 	}
 
@@ -456,11 +452,13 @@ void UCustomMovementComponent::PlayClimbMontage(UAnimMontage* MontageToPlay)
 void UCustomMovementComponent::OnClimbMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	//Debug::Print(TEXT("Climb montage ended"));
-	if (Montage == IdleToClimbMontage)
+	if (Montage == IdleToClimbMontage || Montage == ClimbDownLedgeMontage)
 	{
 		StartClimbing();
+		StopMovementImmediately();
 	}
-	else
+
+	if (Montage == ClimbToTopMontage)
 	{
 		SetMovementMode(MOVE_Walking);
 	}
