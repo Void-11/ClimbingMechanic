@@ -6,6 +6,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CustomMovementComponent.generated.h"
 
+DECLARE_DELEGATE(FOnEnterClimbState)
+DECLARE_DELEGATE(FOnExitClimbState)
+
 class UAnimMontage;
 class UAnimInstance;
 class AClimbingMechanicCharacter;
@@ -25,6 +28,10 @@ UCLASS()
 class CLIMBINGMECHANIC_API UCustomMovementComponent : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
+
+public:
+	FOnEnterClimbState OnEnterClimbStateDelegate;
+	FOnExitClimbState OnExitClimbStateDelegate;
 
 protected:
 
@@ -88,6 +95,15 @@ private:
 
 	void SetMotionWarpTarget(const FName& InWarpTargetName, const FVector& InTargetPosition);
 
+	void ManageHopUp();
+
+	bool CheckCanHopUp(FVector& OutHopUpTargetPosition);
+
+	void ManageHopDown();
+
+	bool CheckCanHopDown(FVector& OutHopDownTargetPosition);
+
+
 #pragma endregion
 
 #pragma region ClimbCoreVariables
@@ -144,10 +160,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* VaultMontage;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* HopUpMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* HopDownMontage;
+
 #pragma endregion
 
 public:
 	void ToggleClimbing(bool bEnableClimb);
+	void RequestHopping();
 	bool IsClimbing() const;
 	FORCEINLINE FVector GetClimbableSurfaceNormal() const { return CurrentClimbableSurfaceNormal; } 
 	FVector GetUnrotatedClimbVelocity() const;
