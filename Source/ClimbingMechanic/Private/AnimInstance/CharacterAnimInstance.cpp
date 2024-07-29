@@ -29,6 +29,7 @@ void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	GetShouldMove();
 	GetIsFalling();
 	GetIsClimbing();
+	GetClimbVelocity();
 }
 
 void UCharacterAnimInstance::GetLandSpeed()
