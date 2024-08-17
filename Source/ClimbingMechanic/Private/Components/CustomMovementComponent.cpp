@@ -111,7 +111,7 @@ FVector UCustomMovementComponent::ConstrainAnimRootMotionVelocity(const FVector&
 
 #pragma region ClimbTraces
 
-TArray<FHitResult> UCustomMovementComponent::DoCapsuleTraceMultiByObject(const FVector& Start, const FVector& End, bool bShowDebugShape, bool bDrawPersistantShapes)
+/*TArray<FHitResult> UCustomMovementComponent::DoCapsuleTraceMultiByObject(const FVector& Start, const FVector& End, bool bShowDebugShape, bool bDrawPersistantShapes)
 {
 	TArray<FHitResult> OutCapsuletraceHitResults;
 
@@ -143,9 +143,43 @@ TArray<FHitResult> UCustomMovementComponent::DoCapsuleTraceMultiByObject(const F
 
 	return OutCapsuletraceHitResults;
 
+}*/
+
+TArray<FHitResult> UCustomMovementComponent::DoCapsuleTraceMultiByObject(const FVector& Start, const FVector& End)
+{
+	TArray<FHitResult> OutCapsuletraceHitResults;
+
+	EDrawDebugTrace::Type DebugTraceType = EDrawDebugTrace::None;
+
+	// if (bShowDebugShape)
+	// {
+	// 	DebugTraceType = EDrawDebugTrace::ForOneFrame;
+	//
+	// 	if (bDrawPersistantShapes)
+	// 	{
+	// 		DebugTraceType = EDrawDebugTrace::Persistent;
+	// 	}
+	// }
+
+	UKismetSystemLibrary::CapsuleTraceMultiForObjects(
+		this,
+		Start,
+		End,
+		ClimbCapsuleTraceRadius,
+		ClimbCapsuleTraceHalfHeight,
+		ClimbableSurfaceTraceTypes,
+		false,
+		TArray<AActor*>(),
+		DebugTraceType,
+		OutCapsuletraceHitResults,
+		false
+	);
+
+	return OutCapsuletraceHitResults;
+
 }
 
-FHitResult UCustomMovementComponent::DoLineTraceSingleByObject(const FVector& Start, const FVector& End, bool bShowDebugShape, bool bDrawPersistantShapes)
+/*FHitResult UCustomMovementComponent::DoLineTraceSingleByObject(const FVector& Start, const FVector& End, bool bShowDebugShape, bool bDrawPersistantShapes)
 {
 	FHitResult OutHit;
 
@@ -174,6 +208,37 @@ FHitResult UCustomMovementComponent::DoLineTraceSingleByObject(const FVector& St
 	);
 
 	return OutHit;
+}*/
+
+FHitResult UCustomMovementComponent::DoLineTraceSingleByObject(const FVector& Start, const FVector& End)
+{
+	FHitResult OutHit;
+
+	EDrawDebugTrace::Type DebugTraceType = EDrawDebugTrace::None;
+
+	// if (bShowDebugShape)
+	// {
+	// 	DebugTraceType = EDrawDebugTrace::ForOneFrame;
+	//
+	// 	if (bDrawPersistantShapes)
+	// 	{
+	// 		DebugTraceType = EDrawDebugTrace::Persistent;
+	// 	}
+	// }
+
+	UKismetSystemLibrary::LineTraceSingleForObjects(
+		this,
+		Start,
+		End,
+		ClimbableSurfaceTraceTypes,
+		false,
+		TArray<AActor*>(),
+		DebugTraceType,
+		OutHit,
+		false
+	);
+
+	return OutHit;
 }
 
 #pragma endregion
@@ -186,7 +251,7 @@ void UCustomMovementComponent::ToggleClimbing(bool bEnableClimb)
 	{
 		if (CanStartClimbing())
 		{
-			Debug::Print(TEXT("Can Start Climbing"));
+			//Debug::Print(TEXT("Can Start Climbing"));
 			//StartClimbing(); 
 			PlayClimbMontage(IdleToClimbMontage);
 		}
@@ -226,12 +291,14 @@ bool UCustomMovementComponent::CanClimbDownLedge()
 	const FVector WalkableSurfaceTraceStart = ComponentLocation + ComponentForward * ClimbDownWalkableSurfaceTraceOffset;
 	const FVector WalkableSurfaceTraceEnd = WalkableSurfaceTraceStart + DownVector * 100.f;
 
-	FHitResult WalkableSurfaceHit = DoLineTraceSingleByObject(WalkableSurfaceTraceStart, WalkableSurfaceTraceEnd, true);
+	//FHitResult WalkableSurfaceHit = DoLineTraceSingleByObject(WalkableSurfaceTraceStart, WalkableSurfaceTraceEnd, true);
+	FHitResult WalkableSurfaceHit = DoLineTraceSingleByObject(WalkableSurfaceTraceStart, WalkableSurfaceTraceEnd);
 
 	const FVector LedgeTraceStart = WalkableSurfaceHit.TraceStart + ComponentForward * ClimbDownLedgeTraceOffset;
 	const FVector LedgeTraceEnd = LedgeTraceStart + DownVector * 300.f;
 
-	FHitResult LedgeTraceHit = DoLineTraceSingleByObject(LedgeTraceStart, LedgeTraceEnd, true);
+	//FHitResult LedgeTraceHit = DoLineTraceSingleByObject(LedgeTraceStart, LedgeTraceEnd, true);
+	FHitResult LedgeTraceHit = DoLineTraceSingleByObject(LedgeTraceStart, LedgeTraceEnd);
 
 	if (WalkableSurfaceHit.bBlockingHit && !LedgeTraceHit.bBlockingHit)
 	{
@@ -338,7 +405,7 @@ bool UCustomMovementComponent::CheckIfStopClimbing()
 	{
 		return true;
 	}
-	Debug::Print(TEXT("Degree Diff: ") + FString::SanitizeFloat(DegreeDiff), FColor::Orange, 1);
+	//Debug::Print(TEXT("Degree Diff: ") + FString::SanitizeFloat(DegreeDiff), FColor::Orange, 1);
 
 	return false;
 }
@@ -493,7 +560,8 @@ bool UCustomMovementComponent::TraceClimbableSurfaces()
 	const FVector Start = UpdatedComponent->GetComponentLocation() + StartOffset;
 	const FVector End = Start + UpdatedComponent->GetForwardVector();
 
-	ClimbableSurfacesTracedResults = DoCapsuleTraceMultiByObject(Start, End, true);
+	//ClimbableSurfacesTracedResults = DoCapsuleTraceMultiByObject(Start, End, true);
+	ClimbableSurfacesTracedResults = DoCapsuleTraceMultiByObject(Start, End);
 
 	return !ClimbableSurfacesTracedResults.IsEmpty();
 }
@@ -542,7 +610,7 @@ void UCustomMovementComponent::RequestHopping()
 	const float DotResult =
 		FVector::DotProduct(UnrotatedLastInputVector.GetSafeNormal(), FVector::UpVector);
 
-	Debug::Print(TEXT("Dot result: ") + FString::SanitizeFloat(DotResult));
+	//Debug::Print(TEXT("Dot result: ") + FString::SanitizeFloat(DotResult));
 
 	if (DotResult >= 0.9f)
 	{
@@ -552,10 +620,10 @@ void UCustomMovementComponent::RequestHopping()
 	{
 		ManageHopDown();
 	}
-	else
-	{
-		Debug::Print(TEXT("Invalid Input Range"));
-	}
+	// else
+	// {
+	// 	Debug::Print(TEXT("Invalid Input Range"));
+	// }
 }
 
 void UCustomMovementComponent::SetMotionWarpTarget(const FName& InWarpTargetName, const FVector& InTargetPosition)

@@ -51,8 +51,10 @@ private:
 
 #pragma region ClimbTraces
 
-	TArray<FHitResult> DoCapsuleTraceMultiByObject(const FVector& Start, const FVector& End, bool bShowDebugShape = false, bool bDrawPersistantShapes = false);
-	FHitResult DoLineTraceSingleByObject(const FVector& Start, const FVector& End, bool bShowDebugShape = false, bool bDrawPersistantShapes = false);
+	//TArray<FHitResult> DoCapsuleTraceMultiByObject(const FVector& Start, const FVector& End, bool bShowDebugShape = false, bool bDrawPersistantShapes = false);
+	TArray<FHitResult> DoCapsuleTraceMultiByObject(const FVector& Start, const FVector& End);
+	//FHitResult DoLineTraceSingleByObject(const FVector& Start, const FVector& End, bool bShowDebugShape = false, bool bDrawPersistantShapes = false);
+	FHitResult DoLineTraceSingleByObject(const FVector& Start, const FVector& End);
 
 #pragma endregion
 
